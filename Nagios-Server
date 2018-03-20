@@ -1,0 +1,72 @@
+Nagios server:
+==============
+Operating system : CentOS 7 minimal server
+IP Address       : 192.168.226.129/24
+
+Nagios client:
+==============
+Operating System : CentOS 7 minimal server
+IP Address       : 192.168.226.130/24
+
+
+# yum install gd gd-devel gcc glibc glibc-common wget
+#useradd -m nagios
+#passwd nagios
+#groupadd nagcmd
+#usermod -a -G nagcmd nagios
+#usermod -a -G nagcmd apache
+#wget http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.0.8.tar.gz
+#wget http://nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
+
+Installation Nagios And Plugins:
+================================
+#tar xzf nagios-4.0.8.tar.gz
+#cd nagios-4.0.8
+#./configure --with-command-group=nagcmd
+#make all
+#make install
+#make install-init
+#make install-config
+#make install-commandmode
+#make install-webconf
+
+#htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+
+#systemctl restart httpd
+
+#tar xzf nagios-plugins-2.0.3.tar.gz
+#cd nagios-plugins-2.0.3
+#./configure --with-nagios-user=nagios --with-nagios-group=nagios
+#make
+#make install
+
+Configure Nagios:
+=================
+#vi /usr/local/nagios/etc/objects/contacts.cfg
+
+ email      skrishna@sysadmin.ln  ; <<***** CHANGE THIS TO YOUR EMAIL ADDRESS ******
+ 
+
+ #vi /etc/httpd/conf.d/nagios.conf
+## Comment the following lines ##
+#   Order allow,deny
+#   Allow from all
+
+## Uncomment and Change lines as shown below ##
+Order deny,allow
+Deny from all
+Allow from 127.0.0.1 192.168.226.0/24
+
+#systemctl restart httpd
+
+check for any configuration errors using command:
+=================================================
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+If there are no errors, start nagios service and make it to start automatically on every boot.
+
+#systemctl start nagios
+#chkconfig --add nagios
+#chkconfig nagios on
+
+===Check it browser===
