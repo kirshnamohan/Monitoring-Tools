@@ -1,0 +1,66 @@
+#yum install epel-release
+#yum install nrpe nagios-plugins-all openssl
+
+#vi /etc/nagios/nrpe.cfg
+allowed_hosts=127.0.0.1 192.168.226.129 #server IP
+
+#systemctl start nrpe
+chkconfig nrpe on
+
+Nagios server:
+==============
+
+#vi /usr/local/nagios/etc/nagios.cfg
+## Find and uncomment the following line ##
+cfg_dir=/usr/local/nagios/etc/servers
+
+mkdir /usr/local/nagios/etc/servers
+
+#vi /usr/local/nagios/etc/servers/clients.cfg
+Add the following lines:
+define host{
+use                             linux-server
+host_name                       client
+alias                           client
+address                         192.168.226.130
+max_check_attempts              5
+check_period                    24x7
+notification_interval           30
+notification_period             24x7
+}
+
+#systemctl restart nagios
+
+#vi /etc/nagios/objects/commands.cfg
+# add follows to the end
+define command{
+    command_name        check_nrpe
+    command_line        $USER1$/check_nrpe -H $HOSTADDRESS$ -c $ARG1$
+}
+
+#vi /usr/local/nagios/etc/servers/clients.cfg
+
+##Add the following lines shown in bold:
+define host{
+	use                             linux-server
+	host_name                       client
+	alias                           client
+	address                         192.168.1.152
+	max_check_attempts              5
+	check_period                    24x7
+	notification_interval           30
+	notification_period             24x7
+	}
+
+define service {
+        use                             generic-service
+        host_name                       client
+        service_description             SSH
+        check_command                   check_ssh
+        notifications_enabled           0
+        }
+		
+Save and close the file. Restart Nagios.
+#systemctl restart nagios
+
+
